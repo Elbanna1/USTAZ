@@ -1,0 +1,350 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   USTAZ — DESIGN TOKENS
+   Light: warm ivory paper, deep pine-ink, antique gold.
+   Dark:  deep ink ground, luminous mint, warm gold. Re-tuned, not inverted.
+   ========================================================================== */
+
+@layer base {
+  :root {
+    --radius: 0.875rem;
+
+    --background: 40 33% 97%;
+    --foreground: 174 34% 10%;
+
+    --surface: 40 40% 99%;
+    --surface-foreground: 174 34% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 174 34% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 174 34% 10%;
+
+    --primary: 172 52% 13%;
+    --primary-foreground: 40 40% 97%;
+    --primary-soft: 172 40% 22%;
+
+    --secondary: 168 22% 92%;
+    --secondary-foreground: 174 40% 16%;
+
+    --accent: 38 58% 48%;
+    /* Ink, not paper. The accent is a mid-value gold: white on it measures
+       2.9:1 and the soft end 1.9:1, so every gold badge and button failed AA.
+       Deep warm ink reads 5.9:1 on the base and 8.9:1 on the soft end, and it
+       matches the dark theme, where this token was already ink. */
+    --accent-foreground: 35 55% 11%;
+    --accent-soft: 38 72% 62%;
+    /* Text-grade gold. The fill gold above is a mid value — as a foreground on
+       ivory it measures 2.5:1, so every eyebrow, chip and step number set in it
+       failed AA. This one reads 5.2:1 on the accent tints and 5.4:1 on paper.
+       Use --accent for fills and strokes, --accent-strong for glyphs. */
+    --accent-strong: 36 70% 31%;
+
+    --muted: 40 20% 93%;
+    --muted-foreground: 174 10% 38%;
+
+    --border: 40 16% 87%;
+    --input: 40 16% 86%;
+    --ring: 172 45% 24%;
+
+    --destructive: 2 62% 47%;
+    --destructive-foreground: 40 40% 98%;
+
+    --success: 152 48% 32%;
+    --success-foreground: 40 40% 98%;
+
+    --warning: 30 82% 44%;
+    --warning-foreground: 40 45% 98%;
+
+    /* Text-grade status colours.
+       The three above are fill values, chosen to carry white. Set as a
+       foreground on their own 12% tint they measure 4.5 / 4.4 / 3.0 — warning
+       fails outright and the other two sit on the line. These darker siblings
+       clear 5.7-6.2 on the same tints. Fills use the base token, glyphs and
+       status text use -strong. */
+    --destructive-strong: 2 70% 38%;
+    --success-strong: 154 58% 25%;
+    --warning-strong: 26 80% 32%;
+
+    --shadow-color: 174 40% 12%;
+  }
+
+  .dark {
+    --background: 176 32% 6%;
+    --foreground: 40 22% 93%;
+
+    --surface: 176 25% 9%;
+    --surface-foreground: 40 22% 93%;
+
+    --card: 175 23% 11%;
+    --card-foreground: 40 22% 93%;
+
+    --popover: 175 26% 10%;
+    --popover-foreground: 40 22% 93%;
+
+    --primary: 158 44% 60%;
+    --primary-foreground: 176 40% 7%;
+    --primary-soft: 165 34% 40%;
+
+    --secondary: 175 18% 16%;
+    --secondary-foreground: 40 20% 90%;
+
+    --accent: 38 70% 62%;
+    --accent-foreground: 30 50% 10%;
+    --accent-soft: 40 80% 72%;
+    /* On ink, gold already carries; nudged up a little for small glyphs. */
+    --accent-strong: 38 74% 66%;
+
+    --muted: 175 16% 15%;
+    --muted-foreground: 168 10% 64%;
+
+    --border: 175 14% 18%;
+    --input: 175 14% 20%;
+    --ring: 158 44% 52%;
+
+    /* Fill only — glyphs use --destructive-strong — so this is tuned to carry
+       white on the 10px count badges, where 58% lightness measured 3.96:1. */
+    --destructive: 2 60% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 46% 52%;
+    --success-foreground: 176 40% 8%;
+
+    --warning: 36 78% 58%;
+    --warning-foreground: 30 50% 10%;
+
+    /* On ink the direction reverses: the text grade is the lighter one. */
+    --destructive-strong: 2 75% 70%;
+    --success-strong: 152 50% 62%;
+    --warning-strong: 38 85% 64%;
+
+    --shadow-color: 176 60% 2%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  /**
+   * Grid items default to `min-width: auto`, so a child with a wide
+   * min-content (a nowrap row, a chart, a long token) inflates its track past
+   * the container and the whole page scrolls sideways. On the teacher
+   * dashboard at 375px this produced 8px of horizontal scroll on every view.
+   * Zeroing it is the standard remedy and it fixes every `grid-cols-[...fr]`
+   * in the app at once. Zero specificity, so `min-w-*` on a child still wins —
+   * that is how the week grid keeps its 56rem scroll width.
+   */
+  :where([class~='grid'], [class*=':grid']) > * {
+    min-width: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans text-body antialiased;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display text-foreground;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Latin runs (names, prices, codes) inside Arabic copy keep their own face. */
+  .font-latin,
+  [lang='en'],
+  .latin {
+    font-family: 'Plus Jakarta Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    border-radius: calc(var(--radius) - 6px);
+  }
+
+  ::selection {
+    @apply bg-accent/25 text-foreground;
+  }
+
+  /* Scrollbar — subtle, themed, never a scrollbar-shaped afterthought. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full border-4 border-solid border-transparent bg-muted-foreground/30 bg-clip-content;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50 bg-clip-content;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font-family: inherit;
+  }
+
+  /* Numerals stay Western-Arabic across the app for price/date legibility. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply container mx-auto;
+  }
+
+  .section-y {
+    @apply py-section;
+  }
+
+  /* Eyebrow label above section headings */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-label uppercase tracking-[0.12em] text-accent-strong;
+  }
+
+  .surface-card {
+    @apply rounded-xl border border-border bg-card text-card-foreground shadow-card;
+  }
+
+  .glass-panel {
+    @apply border border-white/12 bg-white/8 backdrop-blur-xl;
+  }
+
+  /* Hairline divider that fades at both ends */
+  .rule-fade {
+    @apply h-px w-full border-0;
+    background: linear-gradient(to left, transparent, hsl(var(--border)), transparent);
+  }
+
+  .link-underline {
+    @apply relative inline-block;
+  }
+  .link-underline::after {
+    content: '';
+    @apply absolute bottom-0 right-0 h-px w-0 bg-current transition-[width] duration-300 ease-premium;
+  }
+  .link-underline:hover::after {
+    @apply w-full;
+  }
+
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-muted;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.06), transparent);
+  }
+}
+
+@layer utilities {
+  .text-gradient-ink {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-soft)));
+  }
+
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(120deg, hsl(var(--accent-soft)), hsl(var(--accent)));
+  }
+
+  /* Faint paper grid used behind hero + dashboard shells */
+  .bg-paper-grid {
+    background-image:
+      linear-gradient(to left, hsl(var(--border) / 0.55) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.55) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  .bg-dot-grid {
+    background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+  }
+
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(to left, transparent, black 8%, black 92%, transparent);
+    mask-image: linear-gradient(to left, transparent, black 8%, black 92%, transparent);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .line-clamp-2-rtl {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* RTL-aware directional icon flip for chevrons that mean "forward" */
+  [dir='rtl'] .flip-rtl {
+    transform: scaleX(-1);
+  }
+
+  .safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Recharts inherits the theme rather than shipping its own palette. */
+.recharts-cartesian-axis-tick-value,
+.recharts-legend-item-text {
+  fill: hsl(var(--muted-foreground));
+  font-size: 12px;
+  font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+}
+.recharts-cartesian-grid line {
+  stroke: hsl(var(--border));
+}
+.recharts-surface {
+  overflow: visible;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Ustaz">
+  <defs>
+    <linearGradient id="ink" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1A5149" />
+      <stop offset="0.55" stop-color="#103A34" />
+      <stop offset="1" stop-color="#08221E" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F2CC7C" />
+      <stop offset="1" stop-color="#C9962F" />
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="64" height="64" rx="17" fill="url(#ink)" />
+
+  <!-- open book / lectern: two pages meeting at a spine -->
+  <path
+    d="M15 40.6c5.6-4.6 11.4-4.6 17 0 5.6-4.6 11.4-4.6 17 0v6.8c-5.6-4.6-11.4-4.6-17 0-5.6-4.6-11.4-4.6-17 0z"
+    fill="#F7F3EA"
+    opacity="0.92"
+  />
+
+  <!-- the alef: the upright stroke of أستاذ -->
+  <path d="M32 39.4V17.8" stroke="#F7F3EA" stroke-width="6.6" stroke-linecap="round" />
+
+  <!-- the hamza, set as a gold jewel -->
+  <rect x="39.2" y="15.6" width="9.2" height="9.2" rx="2.6" transform="rotate(45 43.8 20.2)" fill="url(#gold)" />
+</svg>

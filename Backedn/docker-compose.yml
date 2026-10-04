@@ -1,0 +1,123 @@
+# USTAZ local stack: API + SQL Server + Redis.
+# Docker is entirely optional - the API also runs with `dotnet run` against a local
+# SQL Server, and degrades gracefully when Redis is absent.
+#
+# Copy .env.example to .env first; secrets are never baked into this file.
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ustaz-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD in .env}
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - ustaz-sqldata:/var/opt/mssql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: ustaz-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - ustaz-redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ustaz-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_HTTP_PORTS: 8080
+
+      ConnectionStrings__DefaultConnection: >-
+        Server=sqlserver,1433;Database=UstazDb;User Id=sa;Password=${MSSQL_SA_PASSWORD};
+        TrustServerCertificate=True;MultipleActiveResultSets=true
+
+      Jwt__Issuer: ${JWT_ISSUER:-https://api.ustaz.local}
+      Jwt__Audience: ${JWT_AUDIENCE:-http://localhost:5173}
+      Jwt__Key: ${JWT_KEY:?set JWT_KEY in .env (32+ characters)}
+      Jwt__AccessTokenMinutes: ${JWT_ACCESS_MINUTES:-60}
+      Jwt__RefreshTokenDays: ${JWT_REFRESH_DAYS:-14}
+
+      Redis__ConnectionString: redis:6379
+      Redis__InstanceName: "ustaz:"
+
+      Cors__AllowedOrigins__0: ${CLIENT_ORIGIN:-http://localhost:5173}
+
+      Cloudinary__CloudName: ${CLOUDINARY_CLOUD_NAME:-}
+      Cloudinary__ApiKey: ${CLOUDINARY_API_KEY:-}
+      Cloudinary__ApiSecret: ${CLOUDINARY_API_SECRET:-}
+
+      # Gmail SMTP. The app password is injected from the environment and never
+      # baked into the image or this file.
+      Email__Provider: Gmail
+      Email__Host: ${EMAIL_HOST:-smtp.gmail.com}
+      Email__Port: ${EMAIL_PORT:-587}
+      Email__UseStartTls: "true"
+      Email__EnableSsl: "true"
+      Email__UserName: ${EMAIL_USERNAME:-}
+      Email__Password: ${EMAIL_PASSWORD:-}
+      Email__FromEmail: ${EMAIL_FROM:-}
+      Email__FromName: ${EMAIL_FROM_NAME:-Ustaz}
+      Email__SupportEmail: ${EMAIL_SUPPORT:-}
+      Email__ClientBaseUrl: ${CLIENT_ORIGIN:-http://localhost:5173}
+
+      # Migrations run on boot inside the compose stack so the DB is ready to use.
+      Seed__ApplyMigrationsOnStartup: "true"
+      Seed__SeedEssentials: "true"
+      Seed__SeedDemoData: ${SEED_DEMO_DATA:-false}
+      Seed__AdminEmail: ${ADMIN_EMAIL:-}
+      Seed__AdminPassword: ${ADMIN_PASSWORD:-}
+
+      Swagger__Enabled: ${SWAGGER_ENABLED:-true}
+
+      # Private file storage, backed by the named volume below.
+      Storage__RootPath: /app/storage
+      Storage__MaxFileSizeInMegabytes: ${STORAGE_MAX_FILE_MB:-25}
+
+      # Live notification delivery and the background sweeps.
+      Realtime__Enabled: ${REALTIME_ENABLED:-true}
+      Exams__ExpirySweepEnabled: "true"
+      EarlyWarning__Enabled: ${EARLY_WARNING_ENABLED:-true}
+    ports:
+      - "${API_PORT:-8080}:8080"
+    volumes:
+      - ustaz-storage:/app/storage
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/health/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+volumes:
+  ustaz-sqldata:
+  ustaz-redisdata:
+  ustaz-storage:

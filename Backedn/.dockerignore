@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/.idea/
+**/logs/
+**/App_Data/
+**/wwwroot/uploads/
+.git/
+.gitignore
+.env
+*.md
+storage/

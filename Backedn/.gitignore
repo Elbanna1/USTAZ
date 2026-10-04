@@ -1,0 +1,34 @@
+# Build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+*.user
+*.suo
+.vs/
+.vscode/
+.idea/
+
+# Publish output. It contains the environment's resolved appsettings, which on a
+# production publish means real credentials: never commit it.
+publish/
+publish-selfcontained/
+
+# Secrets and local configuration
+.env
+appsettings.Local.json
+appsettings.*.Local.json
+secrets.json
+
+# Runtime output
+logs/
+src/Ustaz.API/wwwroot/uploads/
+src/Ustaz.API/App_Data/
+
+# OS noise
+Thumbs.db
+.DS_Store
+
+# Private uploads, local media and development email dumps.
+storage/
